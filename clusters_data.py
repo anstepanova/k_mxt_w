@@ -45,9 +45,15 @@ class MetricsMixin:
         else:
             return euclidean_distance_between2points()
 
+    def manhattan_distance(self, point1: np.ndarray, point2: Optional[np.ndarray] = None):
+        raise NotImplementedError
 
-class ClustersDataSpace(ClustersData, ABC):
-    def __init__(self, x_init: np.ndarray, y_init: np.ndarray):
+    def cosine_distance(self, point1: np.ndarray, point2: Optional[np.ndarray] = None):
+        raise NotImplementedError
+
+
+class ClustersDataSpace(ClustersData, MetricsMixin, ABC):
+    def __init__(self, x_init: np.ndarray, y_init: np.ndarray, metrics: str):
         super().__init__()
         if x_init.shape != y_init.shape:
             raise ValueError('x_init and y_init must have the same dimension')
@@ -56,36 +62,38 @@ class ClustersDataSpace(ClustersData, ABC):
         self.data_ration = None
         self.cluster_numbers = np.full(len(self.x_init), -1)
         self.num_of_data = self.x_init.shape[0]
-
-
-class ClustersDataSpaceEuclidean(MetricsMixin, ClustersDataSpace):
-    def __init__(self, x_init: np.ndarray, y_init: np.ndarray):
-        ClustersDataSpace.__init__(self, x_init, y_init)
-        self.data_ration = np.array([self.x_init,
-                                     self.y_init]).transpose()
+        self.__allowed_metrics = {
+            'euclidean': self.euclidean_distance,
+            'manhattan': self.manhattan_distance,
+            'cosine': self.cosine_distance,
+        }
+        self.metrics = metrics
+        self._distance_func = self.__allowed_metrics.get(self.metrics)
+        if self._distance_func is None:
+            raise ValueError(f'metrics={metrics} is not correct value. '
+                             f'{self.__allowed_metrics.keys()} is the list of possibles values.')
 
     def distance(self, point1: np.ndarray, point2: Optional[np.ndarray] = None):
-        return self.euclidean_distance(point1, point2)
+        return self._distance_func(point1, point2)
+
+
+class ClustersDataSpace2d(ClustersDataSpace):
+    def __init__(self, x_init: np.ndarray, y_init: np.ndarray, metrics='euclidean'):
+        ClustersDataSpace.__init__(self, x_init, y_init, metrics=metrics)
+        self.data_ration = np.array([self.x_init,
+                                     self.y_init]).transpose()
 
 
 class ClustersDataSpaceFeatures(ClustersDataSpace, ABC):
 
-    def __init__(self, x_init: np.ndarray, y_init: np.ndarray, features_init: np.ndarray):
+    def __init__(self, x_init: np.ndarray, y_init: np.ndarray, features_init: np.ndarray, metrics='euclidean'):
         """
         :param x_init:
         :param y_init:
         :param features_init: each row corresponds to a single data point.
         """
-        super().__init__(x_init, y_init)
+        super().__init__(x_init, y_init, metrics=metrics)
         self.features_init = features_init.copy()
         self.data_ration = np.concatenate((ClustersData.array_rationing(self.x_init),
                                            ClustersData.array_rationing(self.y_init),
                                            ClustersData.array_rationing(self.features_init)), axis=1)
-
-
-class ClustersDataSpaceFeaturesEuclidean(MetricsMixin, ClustersDataSpaceFeatures):
-    def __init__(self, x_init: np.ndarray, y_init: np.ndarray, features_init: np.ndarray):
-        super().__init__(x_init, y_init, features_init)
-
-    def distance(self, point1: np.ndarray, point2: Optional[np.ndarray] = None):
-        return self.euclidean_distance(point1, point2)
