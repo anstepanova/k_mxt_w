@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 
-from k_mxt_w.clusters_data import *
+from clusters_data import *
 
 
 class TestClustersData:
