@@ -33,6 +33,13 @@ class MetricsMixin:
         self.data_ration = None
         self.time_init = None
 
+    @staticmethod
+    def __calculate_distance(self, point1, point2, func_for_one_point, func_for_two_points):
+        if point2 is None:
+            return func_for_one_point(num_point=point1)
+        else:
+            return func_for_two_points(point1=point1, point2=point2)
+
     def euclidean_distance(self, point1: np.ndarray, point2: Optional[np.ndarray] = None):
         def euclidean_distance_between_point_array(num_point: int):
             return np.sqrt(np.sum((self.data_ration - self.data_ration[num_point]) ** 2, axis=1))
@@ -40,15 +47,28 @@ class MetricsMixin:
         def euclidean_distance_between2points():
             return np.sqrt(np.sum((self.data_ration[point1] - self.data_ration[point2]) ** 2))
 
-        if point2 is None:
-            return euclidean_distance_between_point_array(num_point=point1)
-        else:
-            return euclidean_distance_between2points()
+        return MetricsMixin.__calculate_distance(
+            point1,
+            point2,
+            func_for_one_point=euclidean_distance_between_point_array,
+            func_for_two_points=euclidean_distance_between2points,
+        )
 
     def manhattan_distance(self, point1: np.ndarray, point2: Optional[np.ndarray] = None):
-        raise NotImplementedError
+        def manhattan_distance_between_point_array(num_point: int):
+            return np.abs(np.sum(self.data_ration - self.data_ration[num_point]), axis=1)
 
-    def cosine_distance(self, point1: np.ndarray, point2: Optional[np.ndarray] = None):
+        def manhattan_distance_between2points():
+            return np.abs(np.sum(self.data_ration[point1] - self.data_ration[point2]))
+
+        return MetricsMixin.__calculate_distance(
+            point1,
+            point2,
+            func_for_one_point=manhattan_distance_between_point_array,
+            func_for_two_points=manhattan_distance_between2points,
+        )
+
+    def minkowski_distance(self, point1: np.ndarray, point2: Optional[np.ndarray] = None):
         raise NotImplementedError
 
 
@@ -65,7 +85,7 @@ class ClustersDataSpace(ClustersData, MetricsMixin, ABC):
         self.__allowed_metrics = {
             'euclidean': self.euclidean_distance,
             'manhattan': self.manhattan_distance,
-            'cosine': self.cosine_distance,
+            'minkowski': self.minkowski_distance,
         }
         self.metrics = metrics
         self._distance_func = self.__allowed_metrics.get(self.metrics)
