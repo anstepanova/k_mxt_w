@@ -34,8 +34,8 @@ def main():
         # x, y, features = data_property.get_data(features_list=features_list)
         for k in [9]:
             for eps in [0.8]:
-                coord, labels = sklearn.datasets.make_blobs(n_samples=5000, random_state=0, cluster_std=0.5)
-                clusters = clusters_data.ClustersDataSpaceEuclidean(x_init=coord[:, 0], y_init=coord[:, 1])
+                coord, labels = sklearn.datasets.make_blobs(n_samples=100, random_state=0, cluster_std=0.5)
+                clusters = clusters_data.ClustersDataSpace2d(x_init=coord[:, 0], y_init=coord[:, 1], metrics='euclidean')
                 alg = clustering_algorithms.K_MXT_gauss(k=k, eps=eps, clusters_data=clusters)
                 start_time = time.time()
                 alg()
