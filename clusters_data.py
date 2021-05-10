@@ -16,7 +16,11 @@ class ClustersData(ABC):
 
     @staticmethod
     def array_rationing(array: np.ndarray) -> np.ndarray:
-        return (array - np.mean(array)) / np.std(array)
+        rationed_array = (array - np.mean(array)) / np.std(array)
+        if np.isnan(rationed_array).any():
+            logger.info(f'It is impossible to ration array={array}.')
+            return array
+        return rationed_array
 
     @abstractmethod
     def distance(self, point1: np.ndarray, point2: Optional[np.ndarray] = None):
@@ -34,7 +38,7 @@ class MetricsMixin:
         self.time_init = None
 
     @staticmethod
-    def __calculate_distance(self, point1, point2, func_for_one_point, func_for_two_points):
+    def __calculate_distance(point1, point2, func_for_one_point, func_for_two_points):
         if point2 is None:
             return func_for_one_point(num_point=point1)
         else:
@@ -44,7 +48,7 @@ class MetricsMixin:
         def euclidean_distance_between_point_array(num_point: int):
             return np.sqrt(np.sum((self.data_ration - self.data_ration[num_point]) ** 2, axis=1))
 
-        def euclidean_distance_between2points():
+        def euclidean_distance_between2points(point1, point2):
             return np.sqrt(np.sum((self.data_ration[point1] - self.data_ration[point2]) ** 2))
 
         return MetricsMixin.__calculate_distance(
@@ -56,9 +60,9 @@ class MetricsMixin:
 
     def manhattan_distance(self, point1: np.ndarray, point2: Optional[np.ndarray] = None):
         def manhattan_distance_between_point_array(num_point: int):
-            return np.abs(np.sum(self.data_ration - self.data_ration[num_point]), axis=1)
+            return np.abs(np.sum(self.data_ration - self.data_ration[num_point], axis=1))
 
-        def manhattan_distance_between2points():
+        def manhattan_distance_between2points(point1, point2):
             return np.abs(np.sum(self.data_ration[point1] - self.data_ration[point2]))
 
         return MetricsMixin.__calculate_distance(
