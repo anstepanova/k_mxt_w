@@ -72,6 +72,24 @@ print(moon_data)
 
 
 class TestK_MXT:
+    @pytest.mark.parametrize('x_init, y_init, k, eps', [
+        (blob_data.x_init, blob_data.y_init, blob_data.k, blob_data.eps),
+        (circle_data.x_init, circle_data.y_init, circle_data.k, circle_data.eps),
+        (moon_data.x_init, moon_data.y_init, moon_data.k, moon_data.eps),
+    ])
+    def test_init(self, x_init, y_init, k, eps):
+        clusters = ClustersDataSpace2d(x_init=x_init, y_init=y_init, metrics='euclidean')
+        alg = K_MXT(k=k, eps=eps, clusters_data=clusters)
+        assert alg.k == k
+        np.testing.assert_almost_equal(alg.eps, eps)
+        assert alg.clusters_data is clusters
+        assert alg.num_of_vertices == clusters.num_of_data == len(x_init)
+        assert len(alg.start_graph) == alg.num_of_vertices
+        assert set(alg.start_graph) == {None}
+        assert len(alg.k_graph) == alg.num_of_vertices
+        assert set(alg.k_graph) == {None}
+
+
     @pytest.mark.parametrize('x_init, y_init, k, eps, expected', [
         (blob_data.x_init, blob_data.y_init, blob_data.k, blob_data.eps, blob_data.expected_started_graph),
         (circle_data.x_init, circle_data.y_init, circle_data.k, circle_data.eps, circle_data.expected_started_graph),
@@ -141,4 +159,8 @@ class TestK_MXT:
         np.testing.assert_array_equal(alg.clusters_data.cluster_numbers, expected)
         # with open('./resources/moon_clustering_result.json', 'w') as file:
         #     json.dump(alg.clusters_data.cluster_numbers.tolist(), file)
+
+
+
+
 
