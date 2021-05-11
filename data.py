@@ -30,7 +30,7 @@ class DataPropertyImportSpace(DataImport):
     def get_data(self, name_latitude_cols='latitude', name_longitude_cols='longitude', features_list=None):
         x = self._dataframe[name_latitude_cols].to_numpy(dtype=np.float)
         y = self._dataframe[name_longitude_cols].to_numpy(dtype=np.float)
-        return x.reshape(-1, 1), y.reshape(-1, 1), self._dataframe[features_list].to_numpy(dtype=np.float)
+        return x, y, self._dataframe[features_list].to_numpy(dtype=np.float)
 
 
 class DataSave:
