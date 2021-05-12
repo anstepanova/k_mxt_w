@@ -3,17 +3,30 @@ import numpy as np
 import collections
 import logging
 
+from typing import Optional, List
+
 
 logger = logging.getLogger('k_mxt_w.clustering_algorithm')
 
 
 class Graph:
-    def __init__(self, adj):
+    """
+    Class which works with graph
+    """
+    def __init__(self, adj: List[List[int]]):
+        """
+
+        :param adj: adjacency list of the graph
+        """
         logger.info(f'init graph')
         self.adj = copy.deepcopy(adj)
         self.num_vertices = len(self.adj)
 
     def get_reverse_graph(self):
+        """
+        Builds and returns reverse graph
+        :return:
+        """
         logger.info(f'start reversing a graph')
         adj = [[] for _ in range(self.num_vertices)]
         for v in range(self.num_vertices):
@@ -21,7 +34,13 @@ class Graph:
                 adj[to].append(v)
         return Graph(adj=adj)
 
-    def dfs(self, vertex_order, is_save_processing_order):
+    def dfs(self, vertex_order: List[int], is_save_processing_order: bool):
+        """
+        Makes Depth First Search of the graph
+        :param vertex_order: list of vertices in traversal order
+        :param is_save_processing_order: True means that the processing_order will be safe
+        :return:
+        """
         logger.info(f'start dfs')
         num_ucc = [0 for _ in range(self.num_vertices)]
         processing_order = None
@@ -59,6 +78,10 @@ class Graph:
         return num_ucc
 
     def top_sort(self):
+        """
+        Builds topological sort
+        :return: order of topological sort
+        """
         logger.info(f'start topological sort')
         vertex_order = [x for x in range(self.num_vertices)]
         _, order_top_sort = self.dfs(vertex_order=vertex_order, is_save_processing_order=True)
@@ -66,6 +89,10 @@ class Graph:
         return order_top_sort
 
     def find_scc(self):
+        """
+        Finds strong connected component
+        :return: strong connected component of the graph
+        """
         g_rev = self.get_reverse_graph()
         order = g_rev.top_sort()
         g_rev = None
