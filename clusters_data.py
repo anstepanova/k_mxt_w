@@ -31,6 +31,28 @@ class ClustersData(ABC):
             raise TypeError('self.cluster_numbers cannot be equal to None')
         return str(self.cluster_numbers[cluster_num])
 
+    def calculate_modularity(self, graph):
+        if self.cluster_numbers is None:
+            raise TypeError('self.cluster_numbers cannot be equal to None')
+        modularity_value = 0
+        edge_count = sum([len(graph[i]) for i in range(len(graph))])
+        cnt_edge_in_cluster = dict()
+        cnt_edge_connecting_with_cluster = dict()
+        for v in range(len(graph)):
+            for to in graph[v]:
+                if self.cluster_numbers[v] == self.cluster_numbers[to]:
+                    cnt_edge_in_cluster[self.cluster_numbers[v]] = \
+                        cnt_edge_in_cluster.get(self.cluster_numbers[v], 0) + 1
+                cnt_edge_connecting_with_cluster[self.cluster_numbers[v]] = \
+                    cnt_edge_connecting_with_cluster.get(self.cluster_numbers[v], 0) + 1
+        for current_cluster in set(self.cluster_numbers):
+            modularity_value += cnt_edge_in_cluster[current_cluster] / edge_count \
+                                - ((cnt_edge_connecting_with_cluster[current_cluster] / edge_count) ** 2)
+        return modularity_value
+
+
+
+
 
 class MetricsMixin:
     def __init__(self):
