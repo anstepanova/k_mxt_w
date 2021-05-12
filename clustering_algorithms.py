@@ -11,12 +11,27 @@ logger = logging.getLogger('k_mxt_w.clustering_algorithm')
 
 
 class Clustering(ABC):
+    """
+    The base class for clustering algorithms
+    """
     def __init__(self, clusters_data: clusters_data.ClustersData):
+        """
+        :param clusters_data: object of class clusters_data.ClustersData
+        """
         self.clustersData = copy.deepcopy(clusters_data)
 
 
 class K_MXT(Clustering):
+    """
+    Makes clustering using k-mxt algorithm
+    """
     def __init__(self, k: int, eps: float, clusters_data: clusters_data.ClustersData):
+        """
+        :param k: the maximum possible number of incidenting arcs  from each vertex
+        :param eps: distance in which will be connected vertices of the graph
+        :param clusters_data: object of class clusters_data.ClustersData,
+        which contains clustering result, metric, coordinates of points etc.
+        """
         logger.info(f'init k-{k}, eps-{eps}, clusters_data-{clusters_data}')
         self.k = k
         self.eps = eps
@@ -27,7 +42,17 @@ class K_MXT(Clustering):
         logger.info(f'init has done.')
 
     def make_start_graph(self):
+        """
+        Builds a started undirected graph, where vertices are points on the plane.
+        The edges of graph are the connections between the vertices located at a distance less than eps.
+        :return: None
+        """
         def get_neighbor(v):
+            """
+            Finds neighbors for vertex v
+            :param v: the vertex number
+            :return: None
+            """
             dst = self.clusters_data.distance(v)
             neighbor = np.where(dst <= self.eps)[0]
             index_v = np.argwhere(neighbor == v)
@@ -37,9 +62,21 @@ class K_MXT(Clustering):
             get_neighbor(v)
 
     def get_arc_weight(self, v, to):
+        """
+        Calculates weight of arc between v and to vertices
+        :param v: vertex 1
+        :param to: vertex 2
+        :return:  weight of arc (v, to)
+        """
         return np.intersect1d(self.start_graph[v], self.start_graph[to]).shape[0]
 
     def make_k_graph(self):
+        """
+        According to the started graph the function builds an oriented subgraph with the same set of vertices.
+        For each vertex it adds k its incident edges with the greates weight to the subgraph as arcs.
+        If it is necessary to choose from several edges with the same weight, the selection is carried out randomly.
+        :return: None
+        """
         if any(x is None for x in self.start_graph):
             raise TypeError('self.start_graph do not have to consist None.')
         if not self.eps > 0.0:
@@ -48,6 +85,10 @@ class K_MXT(Clustering):
         edge_weights = None
 
         def get_k_max_arcs():
+            """
+            Finds and returns k arcs which have maximum weights
+            :return: the list of vertices which have maximum weights
+            """
             if edge_weights.shape[0] < self.k:
                 return edge_weights['vertex']
             edge_weights.sort(order='weight')
@@ -77,12 +118,27 @@ class K_MXT(Clustering):
 
 
 class K_MXT_gauss(K_MXT):
+    """
+    Makes clustering using k-mxt-gauss algorithm
+    """
     def __init__(self, k: int, eps: float, clusters_data: clusters_data.ClustersData):
+        """
+        :param k: the maximum possible number of incidenting arcs  from each vertex
+        :param eps: distance in which will be connected vertices of the graph
+        :param clusters_data: object of class clusters_data.ClustersData,
+        which contains clustering result, metric, coordinates of points etc.
+        """
         super().__init__(k=k, eps=eps, clusters_data=clusters_data)
         self.sigma = eps / 3
         self.norm = scipy.stats.norm(0, self.sigma)
 
     def get_arc_weight(self, v, to):
+        """
+        Calculates weight of arc between v and to vertices
+        :param v: vertex 1
+        :param to: vertex 2
+        :return:  weight of arc (v, to)
+        """
         return self.norm.pdf(self.clusters_data.distance(v, to)) * super().get_arc_weight(v, to)
 
 
