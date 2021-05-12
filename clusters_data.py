@@ -4,6 +4,7 @@ import datetime
 
 from typing import Optional
 from abc import ABC, abstractmethod
+from collections import defaultdict
 
 logger = logging.getLogger('k_mxt_w.clusters_data')
 
@@ -36,8 +37,8 @@ class ClustersData(ABC):
             raise TypeError('self.cluster_numbers cannot be equal to None')
         modularity_value = 0
         edge_count = sum([len(graph[i]) for i in range(len(graph))])
-        cnt_edge_in_cluster = dict()
-        cnt_edge_connecting_with_cluster = dict()
+        cnt_edge_in_cluster = defaultdict(int)
+        cnt_edge_connecting_with_cluster = defaultdict(int)
         for v in range(len(graph)):
             for to in graph[v]:
                 if self.cluster_numbers[v] == self.cluster_numbers[to]:

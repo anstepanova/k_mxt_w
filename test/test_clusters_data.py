@@ -1,6 +1,7 @@
 import pytest
 import numpy as np
 
+from unittest.mock import patch
 from clusters_data import *
 
 
@@ -15,6 +16,35 @@ class TestClustersData:
     ])
     def test_array_rationing(self, array, rationed_array):
         np.testing.assert_allclose(rationed_array, ClustersData.array_rationing(array))
+
+    @pytest.mark.parametrize('graph, cluster_numbers, expected', [
+        ([
+            [1, 2],
+            [0, 2, 3],
+            [0, 1],
+            [1, 6, 7],
+            [5, 6],
+            [4, 6],
+            [3, 4, 5],
+            [3, 8, 9],
+            [7, 9],
+            [7, 8]
+         ], [0, 0, 0, 0, 1, 1, 1, 2, 2, 2], 0.4895833333333332),
+        ([
+            [0],
+            [1]
+        ], [0, 1], 0.5),
+        pytest.param([[], []], [0, 1], 1, marks=pytest.mark.xfail(raises=ZeroDivisionError))
+    ])
+    def test_calculate_modularity(self, graph, cluster_numbers, expected):
+        p = patch.multiple(ClustersData, __abstractmethods__=set())
+        p.start()
+        clusters = ClustersData()
+        clusters.cluster_numbers = cluster_numbers
+        clusters.num_of_data = len(clusters.cluster_numbers)
+        modularity_value = clusters.calculate_modularity(graph)
+        p.stop()
+        np.testing.assert_almost_equal(modularity_value, expected)
 
 
 class TestMetrics:
@@ -77,12 +107,4 @@ class TestMetrics:
         metrics.data_ration = data
         np.testing.assert_almost_equal(metrics.manhattan_distance(point1, point2), result)
         np.testing.assert_allclose(metrics.data_ration, data)
-
-
-class TestClustersDataSpace2d:
-    @pytest.mark.parametrize('', [
-
-    ])
-    def test_calculating_distance(self):
-        pass
 
