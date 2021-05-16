@@ -47,7 +47,8 @@ class DataPropertyImportSpace(DataImport):
         logger.info(f'filename-{self.filename}, sep-{sep}')
         self._read_data()
 
-    def get_data(self,
+    @staticmethod
+    def get_data(df,
                  name_latitude_cols: str = 'latitude',
                  name_longitude_cols: str = 'longitude',
                  features_list=Optional[List[str]]):
@@ -58,9 +59,9 @@ class DataPropertyImportSpace(DataImport):
         :param features_list: list of column names which contain other features
         :return:
         """
-        x = self._dataframe[name_latitude_cols].to_numpy(dtype=np.float)
-        y = self._dataframe[name_longitude_cols].to_numpy(dtype=np.float)
-        return x, y, self._dataframe[features_list].to_numpy(dtype=np.float)
+        x = df[name_latitude_cols].to_numpy(dtype=np.float)
+        y = df[name_longitude_cols].to_numpy(dtype=np.float)
+        return x, y, df[features_list].to_numpy(dtype=np.float)
 
 
 class DataSave:

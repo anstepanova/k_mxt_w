@@ -7,15 +7,14 @@ import os.path
 from dataclasses import dataclass, field
 from typing import List, Union
 
-import clustering_algorithms
-from clustering_algorithms import K_MXT
-from clusters_data import ClustersDataSpace2d
+from k_mxt_w.clustering_algorithms import *
+from k_mxt_w.clusters_data import ClustersDataSpace2d
 
 
 @dataclass
 class DataForAlgorithms:
     name: str
-    cls: Union[clustering_algorithms.K_MXT, clustering_algorithms.K_MXT_gauss]
+    cls: Union[K_MXT, K_MXT_gauss]
     x_init: np.ndarray
     y_init: np.ndarray
     k: int
@@ -52,7 +51,7 @@ moons_coord = sklearn.datasets.make_moons(n_samples=50, noise=0.05, random_state
 
 blob_data = DataForAlgorithms(
     name='blob',
-    cls=clustering_algorithms.K_MXT,
+    cls=K_MXT,
     x_init=blobs_coord[:, 0],
     y_init=blobs_coord[:, 1],
     k=9,
@@ -62,7 +61,7 @@ blob_data = DataForAlgorithms(
 
 circle_data = DataForAlgorithms(
     name='circle',
-    cls=clustering_algorithms.K_MXT,
+    cls=K_MXT,
     x_init=circles_coord[:, 0],
     y_init=circles_coord[:, 1],
     k=9,
@@ -71,7 +70,7 @@ circle_data = DataForAlgorithms(
 
 moon_data = DataForAlgorithms(
     name='moon',
-    cls=clustering_algorithms.K_MXT,
+    cls=K_MXT,
     x_init=moons_coord[:, 0],
     y_init=moons_coord[:, 1],
     k=9,
@@ -80,7 +79,7 @@ moon_data = DataForAlgorithms(
 
 blob_data_gauss = DataForAlgorithms(
     name='blob',
-    cls=clustering_algorithms.K_MXT_gauss,
+    cls=K_MXT_gauss,
     x_init=blobs_coord[:, 0],
     y_init=blobs_coord[:, 1],
     k=9,
@@ -90,7 +89,7 @@ blob_data_gauss = DataForAlgorithms(
 
 circle_data_gauss = DataForAlgorithms(
     name='circle',
-    cls=clustering_algorithms.K_MXT_gauss,
+    cls=K_MXT_gauss,
     x_init=circles_coord[:, 0],
     y_init=circles_coord[:, 1],
     k=9,
@@ -99,7 +98,7 @@ circle_data_gauss = DataForAlgorithms(
 
 moon_data_gauss = DataForAlgorithms(
     name='moon',
-    cls=clustering_algorithms.K_MXT_gauss,
+    cls=K_MXT_gauss,
     x_init=moons_coord[:, 0],
     y_init=moons_coord[:, 1],
     k=9,
@@ -127,7 +126,7 @@ class TestK_MXT:
         assert set(alg.start_graph) == {None}
         assert len(alg.k_graph) == alg.num_of_vertices
         assert set(alg.k_graph) == {None}
-        if isinstance(cls, clustering_algorithms.K_MXT_gauss):
+        if isinstance(cls, K_MXT_gauss):
             np.testing.assert_almost_equal(self.sigma, eps / 3)
 
     @pytest.mark.parametrize('cls, x_init, y_init, k, eps, expected', [
@@ -176,10 +175,10 @@ class TestK_MXT:
         alg.make_start_graph()
         for v in range(alg.num_of_vertices):
             for to in range(alg.num_of_vertices):
-                if isinstance(cls, clustering_algorithms.K_MXT):
+                if isinstance(cls, K_MXT):
                     assert alg.get_arc_weight(v, to) == expected[get_arc_name(v, to)]
                     assert alg.get_arc_weight(v, to) == expected[get_arc_name(to, v)]
-                elif isinstance(cls, clustering_algorithms.K_MXT_gauss):
+                elif isinstance(cls, K_MXT_gauss):
                     np.testing.assert_almost_equal(alg.get_arc_weight(v, to), expected[get_arc_name(v, to)])
                     np.testing.assert_almost_equal(alg.get_arc_weight(v, to), expected[get_arc_name(to, v)])
 

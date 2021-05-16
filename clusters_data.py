@@ -203,7 +203,7 @@ class ClustersDataSpace2d(ClustersDataSpace):
                                      self.y_init]).transpose()
 
 
-class ClustersDataSpaceFeatures(ClustersDataSpace, ABC):
+class ClustersDataSpaceFeatures(ClustersDataSpace):
     """
     Contains information about clusters of data in multidimensional space
     like clustering result, metric, coordinates of points etc.
@@ -217,6 +217,6 @@ class ClustersDataSpaceFeatures(ClustersDataSpace, ABC):
         """
         super().__init__(x_init, y_init, metrics=metrics)
         self.features_init = features_init.copy()
-        self.data_ration = np.concatenate((ClustersData.array_rationing(self.x_init),
-                                           ClustersData.array_rationing(self.y_init),
+        self.data_ration = np.concatenate((ClustersData.array_rationing(self.x_init.reshape(-1, 1)),
+                                           ClustersData.array_rationing(self.y_init.reshape(-1, 1)),
                                            ClustersData.array_rationing(self.features_init)), axis=1)

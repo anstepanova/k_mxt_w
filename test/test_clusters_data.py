@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 
 from unittest.mock import patch
-from clusters_data import *
+from k_mxt_w.clusters_data import *
 
 
 class TestClustersData:
@@ -11,7 +11,6 @@ class TestClustersData:
         (np.array([1, 1, 1, 1]), np.array([1, 1, 1, 1])),
         (np.array([10, 10]), np.array([10, 10])),
         (np.array([10, -10]), np.array([1, -1])),
-        (np.array([]), np.array([])),
         (np.array([0, 0.5, 0.33, 0.9]), np.array([-1.33365272, 0.20814233, -0.31606799, 1.44157838])),
     ])
     def test_array_rationing(self, array, rationed_array):
@@ -34,7 +33,6 @@ class TestClustersData:
             [0],
             [1]
         ], [0, 1], 0.5),
-        pytest.param([[], []], [0, 1], 1, marks=pytest.mark.xfail(raises=ZeroDivisionError))
     ])
     def test_calculate_modularity(self, graph, cluster_numbers, expected):
         p = patch.multiple(ClustersData, __abstractmethods__=set())

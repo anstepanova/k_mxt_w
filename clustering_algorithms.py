@@ -1,11 +1,11 @@
 from abc import ABC
 import numpy as np
 import copy
-import graph
+import k_mxt_w.graph
 import logging
 import scipy.stats
 
-import clusters_data
+import k_mxt_w.clusters_data
 
 logger = logging.getLogger('k_mxt_w.clustering_algorithm')
 
@@ -14,7 +14,7 @@ class Clustering(ABC):
     """
     The base class for clustering algorithms
     """
-    def __init__(self, clusters_data: clusters_data.ClustersData):
+    def __init__(self, clusters_data: k_mxt_w.clusters_data.ClustersData):
         """
         :param clusters_data: object of class clusters_data.ClustersData
         """
@@ -25,7 +25,7 @@ class K_MXT(Clustering):
     """
     Makes clustering using k-mxt algorithm
     """
-    def __init__(self, k: int, eps: float, clusters_data: clusters_data.ClustersData):
+    def __init__(self, k: int, eps: float, clusters_data: k_mxt_w.clusters_data.ClustersData):
         """
         :param k: the maximum possible number of incidenting arcs  from each vertex
         :param eps: distance in which will be connected vertices of the graph
@@ -112,7 +112,7 @@ class K_MXT(Clustering):
         logger.info(f'start making k-graph')
         self.make_k_graph()
         logger.info(f'start finding scc')
-        g = graph.Graph(adj=self.k_graph)
+        g = k_mxt_w.graph.Graph(adj=self.k_graph)
         self.clusters_data.cluster_numbers = np.array(g.find_scc())
         logger.info(f'clustering has finished')
 
@@ -121,7 +121,7 @@ class K_MXT_gauss(K_MXT):
     """
     Makes clustering using k-mxt-gauss algorithm
     """
-    def __init__(self, k: int, eps: float, clusters_data: clusters_data.ClustersData):
+    def __init__(self, k: int, eps: float, clusters_data: k_mxt_w.clusters_data.ClustersData):
         """
         :param k: the maximum possible number of incidenting arcs  from each vertex
         :param eps: distance in which will be connected vertices of the graph
